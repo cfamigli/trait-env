@@ -80,6 +80,27 @@ def main():
 
         canopy_df[~canopy_df.isnull().any(axis=1)].to_csv(canopy_dir + 'ch_processed.csv', index=False)
 
+    ########################################################
+    ########################################################
+    ########################################################
+
+    elif grp=='globcover':
+
+        globcover_dir = '../../Globcover2009_V2/trait-env/'
+        arrs, varnames = tif_to_arr(globcover_dir)
+
+        globcover_lat_lst, globcover_lon_lst = reset_lon(nlat=1800, nlon=3600, breakpoint=None, type='Globcover')
+
+        globcover_df = DataFrame()
+
+        globcover_df['Lat'], globcover_df['Lon'] = [la for la in globcover_lat_lst for lo in globcover_lon_lst], [lo for la in globcover_lat_lst for lo in globcover_lon_lst]
+
+        for i, (arr, varname) in enumerate(zip(arrs, varnames)):
+
+            globcover_df[varname] = arr.reshape(-1)
+
+        globcover_df[~globcover_df.isnull().any(axis=1)].to_csv(globcover_dir + 'globcover_processed.csv', index=False)
+
     return
 
 if __name__=='__main__':

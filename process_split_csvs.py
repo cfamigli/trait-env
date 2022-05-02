@@ -88,17 +88,17 @@ def community_means(df, trait_lst, resolution=0.1):
 
 def main():
 
-    version = '_v1.3'
+    version = '_v1.4'
 
     data_dir = '../data/19963_24032022083038/'
     data_files = glob.glob(data_dir + '*.csv')
     data_files.sort()
 
-    trait_lst = [3117, 3116, 3115, 186, 14]
+    trait_lst = [3117, 3116, 3115, 186, 14, 4]
     boonman_lst = [1,12,20,33,34,45,50,52,55,65,67,73,75,77,84,87,88,91,94,100,102,105,112,113,114,115,123,131,152,156,159,161,163,165,170,180,181,183,190,193,194,200,205,206,207,209,215,218,226,227,228,230,234,236,239,249,255,256,262,263,265,267,269,270,274,329]
     # list of dataset ids that pass boonman criteria
 
-    '''appended_data = []
+    appended_data = []
     for i, file in enumerate(data_files):
 
         print(file)
@@ -137,7 +137,7 @@ def main():
 
         print(output_df.loc[index])
 
-    output_df.to_csv('../data/try-processed/aligned'+version+'.csv')'''
+    output_df.to_csv('../data/try-processed/aligned'+version+'.csv')
 
     output_df = loc_year(pd.read_csv('../data/try-processed/aligned'+version+'.csv', encoding="ISO-8859-1"))
     community_mean_df = community_means(output_df, trait_lst)

@@ -32,6 +32,10 @@ def reset_lon(nlat, nlon, breakpoint, type='ERA5'):
         lat_lst = [round(la,3) for la in np.linspace(90, -89.9, nlat)]
         lon_lst = [round(lo,3) for lo in np.linspace(-180, 179.9, nlon)]
 
+    elif type=='Globcover':
+        lat_lst = [round(la,1) for la in np.linspace(90, -89.9, nlat)]
+        lon_lst = [round(lo,1) for lo in np.linspace(-180, 179.9, nlon)]
+
     elif type=='community_means':
         lat_lst = [round(la,1) for la in np.linspace(90, -89.9, nlat)]
         lon_lst = [round(lo,1) for lo in np.linspace(-180, 179.9, nlon)]
@@ -141,7 +145,7 @@ def set_column_names_for_output(nc_dir):
 
 def main():
 
-    version = '_v1.3'
+    version = '_v1.4'
 
     trait_data_processed = loc_year(pd.read_csv('../data/try-processed/community_mean_df'+version+'.csv', encoding="ISO-8859-1"))
     #trait_data_processed = community_means(trait_data_processed, [3117, 3116, 3115, 186, 14])
@@ -158,11 +162,15 @@ def main():
     canopy_data = pd.read_csv(canopy_dir + 'ch_processed.csv')
     canopy_vars = canopy_data.columns[2:]
 
-    year_lags = [10, 20, 30, 40, 50]
+    globcover_dir = '../../Globcover2009_V2/trait-env/'
+    globcover_data = pd.read_csv(globcover_dir + 'globcover_processed.csv')
+    globcover_vars = globcover_data.columns[2:]
+
+    year_lags = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
 
     for year_lag in year_lags:
 
-        xy_by_experiment = pd.DataFrame(columns = list(trait_data_processed.columns) + set_column_names_for_output(climate_dir) + list(soil_vars) + list(canopy_vars))
+        xy_by_experiment = pd.DataFrame(columns = list(trait_data_processed.columns) + set_column_names_for_output(climate_dir) + list(soil_vars) + list(canopy_vars) + list(globcover_vars))
 
         for i, (index, row) in enumerate(trait_data_processed.iterrows()):
 
@@ -185,13 +193,18 @@ def main():
             except:
                 canopy_data_for_point = [np.nan]
 
+            try:
+                globcover_data_for_point = globcover_data[(globcover_data['Lat']==my_ceil(float(row['Lat']), precision=1)) & (globcover_data['Lon']==my_floor(float(row['Lon']), precision=1))][globcover_vars].values[0]
+            except:
+                globcover_data_for_point = [np.nan]
+
             if climate_data_for_point['t2m'].isnull().all(): continue
 
             else:
                 metrics = get_preceding_climate(climate_data_for_point, obs_year, year_lag)
 
                 row['SamplingDateStr'] = obs_year
-                new_row = np.concatenate([row.values, metrics.to_numpy().T.flatten(), soil_data_for_point, canopy_data_for_point])
+                new_row = np.concatenate([row.values, metrics.to_numpy().T.flatten(), soil_data_for_point, canopy_data_for_point, globcover_data_for_point])
 
                 xy_by_experiment.loc[i] = new_row
 
